@@ -28,6 +28,8 @@ public class Player : MonoBehaviour
 
         _controller = gameObject.GetComponent<CharacterController>();
 
+        Cursor.lockState = CursorLockMode.Locked;
+
         if (_controller == null)
             Debug.LogError("Character Controller Missing");
 
@@ -35,11 +37,17 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        PlayerRotation();
         PlayerMovement();
 
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleCursor();
+        }
     }
+        
 
-    void PlayerMovement()
+    void PlayerRotation()
     {
 
         float horizontalRotation = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -48,7 +56,11 @@ public class Player : MonoBehaviour
         verticalRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
         verticalRotation = Mathf.Clamp(verticalRotation, -minMaxRotation, minMaxRotation);
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
-        
+    }
+    
+    void PlayerMovement()
+    {
+
         forwardVelocity = Input.GetAxis("Vertical") * _movementSpeed;
         sidewaysVelocity = Input.GetAxis("Horizontal") * _movementSpeed;
 
@@ -68,4 +80,15 @@ public class Player : MonoBehaviour
         _controller.Move(direction * Time.deltaTime);
     }
 
+    void ToggleCursor()
+    {
+        if(Cursor.lockState == CursorLockMode.Locked)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
 }
