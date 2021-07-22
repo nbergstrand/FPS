@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
     float mouseSensitivity = 5f;
@@ -37,8 +37,8 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        PlayerRotation();
-        PlayerMovement();
+        Rotation();
+        Movement();
 
         if(Input.GetKeyDown(KeyCode.Escape))
         {
@@ -47,7 +47,7 @@ public class Player : MonoBehaviour
     }
         
 
-    void PlayerRotation()
+    void Rotation()
     {
 
         float horizontalRotation = Input.GetAxis("Mouse X") * mouseSensitivity;
@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
     }
     
-    void PlayerMovement()
+    void Movement()
     {
 
         forwardVelocity = Input.GetAxis("Vertical") * _movementSpeed;
