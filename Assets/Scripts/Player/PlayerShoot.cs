@@ -31,6 +31,14 @@ public class PlayerShoot : MonoBehaviour
         if(Physics.Raycast(ray, out hit))
         {
             GameObject go = Instantiate(_bulletSpark, hit.point, Quaternion.identity);
+            IDamageable target = hit.transform.GetComponent<IDamageable>();
+
+            if (target != null)
+            {
+
+                target.Damage(10);
+
+            }
 
             Destroy(go, 1);
         }
