@@ -5,17 +5,13 @@ using UnityEngine;
 public class Enemy : MonoBehaviour, IDamageable
 {
 
-    enum EnemyState
-    {
-        Idle,
-        Chase,
-        Attack
-    }
-
+   
     [SerializeField]
     EnemyState _state;
 
-    Transform _target;
+    Transform _targetTransorm;
+    IDamageable _target;
+
     CharacterController _controller;
 
     [SerializeField]
@@ -42,11 +38,12 @@ public class Enemy : MonoBehaviour, IDamageable
     {
         Health = _maxHealth;
 
-        _target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
-        
+        _targetTransorm = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        _target = _targetTransorm.GetComponent<IDamageable>();
+
         _controller = GetComponent<CharacterController>();
 
-        if (_target == null)
+        if (_targetTransorm == null)
         {
             Debug.LogError("No player found");
         }
@@ -55,58 +52,46 @@ public class Enemy : MonoBehaviour, IDamageable
     void Update()
     {
        if(_state == EnemyState.Chase)
-        {
+       {
             ChaseTarget();
             
-        }
+       }
 
        if(_state == EnemyState.Chase || _state == EnemyState.Attack)
         {
             FaceTarget();
         }
-        
-    }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if(other.tag == "Player")
+
+        if (_state == EnemyState.Attack)
         {
-            _state = EnemyState.Attack;
+            AttackPlayer();
+
         }
-               
 
     }
 
-    void OnTriggerExit(Collider other)
+    public void SetState(EnemyState state)
     {
-        if (other.tag == "Player")
-        {
-            _state = EnemyState.Chase;
-        }
-
-
+        _state = state;
     }
 
-    void OnTriggerStay(Collider other)
+    void AttackPlayer()
     {
-        if(other.tag == "Player")
+
+        if (_attackCooldownTimer <= 0)
         {
-            if (_attackCooldownTimer <= 0)
-            {
-                _attackCooldownTimer = _attackCooldown;
-                other.GetComponent<IDamageable>().Damage(10);
+            _attackCooldownTimer = _attackCooldown;
+            _target.Damage(10);
 
-            }
-
-            _attackCooldownTimer -= Time.deltaTime;
         }
 
-        
+        _attackCooldownTimer -= Time.deltaTime;
     }
 
    void ChaseTarget()
     {
-        Vector3 direction =(_target.position - transform.position).normalized;
+        Vector3 direction =(_targetTransorm.position - transform.position).normalized;
 
         if(_controller.isGrounded == false)
         {
@@ -121,7 +106,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void FaceTarget()
     {
-        Vector3 direction = (_target.position - transform.position).normalized;
+        Vector3 direction = (_targetTransorm.position - transform.position).normalized;
 
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
 
@@ -147,4 +132,10 @@ public class Enemy : MonoBehaviour, IDamageable
 
 }
 
+public enum EnemyState
+{
+    Idle,
+    Chase,
+    Attack
+}
 

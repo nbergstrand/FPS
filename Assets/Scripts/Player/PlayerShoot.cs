@@ -5,13 +5,12 @@ using UnityEngine;
 public class PlayerShoot : MonoBehaviour
 {
     
-
     [SerializeField]
     GameObject _bulletSpark;
 
-    
+    [SerializeField]
+    GameObject _blood;
 
-   
     void Update()
     {
 
@@ -30,17 +29,30 @@ public class PlayerShoot : MonoBehaviour
 
         if(Physics.Raycast(ray, out hit))
         {
-            GameObject go = Instantiate(_bulletSpark, hit.point, Quaternion.identity);
-            IDamageable target = hit.transform.GetComponent<IDamageable>();
 
-            if (target != null)
+            if(hit.collider.tag != "Enemy")
             {
-
-                target.Damage(10);
+                GameObject go = Instantiate(_bulletSpark, hit.point, Quaternion.identity);
+                Destroy(go, 1);
 
             }
+            else
+            {
+                GameObject go = Instantiate(_blood, hit.point + hit.normal *.1f, Quaternion.LookRotation(-hit.normal));
+                Destroy(go, 1);
 
-            Destroy(go, 1);
+                IDamageable target = hit.transform.GetComponent<IDamageable>();
+
+                if (target != null)
+                {
+
+                    target.Damage(10);
+
+                }
+            }
+            
+
+            
         }
 
     }

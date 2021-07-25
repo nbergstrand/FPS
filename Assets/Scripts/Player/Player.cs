@@ -9,15 +9,18 @@ public class Player : MonoBehaviour, IDamageable
     [SerializeField]
     int _maxHealth;
 
+    public int Health { get; set; }
+
     public static Action<int> OnHealthChange;
-
-
-    public int Health{get; set;}
-
+    
     void Start()
     {
         Health = _maxHealth;
-        OnHealthChange(Health);
+
+        if (OnHealthChange != null)
+        {
+            OnHealthChange(Health);
+        }
     }
 
 
