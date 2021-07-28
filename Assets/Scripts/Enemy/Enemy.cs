@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour, IDamageable
 {
-
-   
+       
     [SerializeField]
     EnemyState _state;
 
-    Transform _targetTransorm;
+    Transform _targetTransform;
     IDamageable _target;
 
     CharacterController _controller;
@@ -33,17 +32,26 @@ public class Enemy : MonoBehaviour, IDamageable
     float _verticalVelocity;
     float _gravity = 10;
 
-    
+    Animator _animator;
+
+    bool _isDead = false;
+
+    Vector3 velocity;
+    Vector3 previousPosition;
+
+
     void Start()
     {
         Health = _maxHealth;
 
-        _targetTransorm = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
-        _target = _targetTransorm.GetComponent<IDamageable>();
+        _targetTransform = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
+        _target = _targetTransform.GetComponent<IDamageable>();
 
         _controller = GetComponent<CharacterController>();
 
-        if (_targetTransorm == null)
+        _animator = GetComponent<Animator>();
+
+        if (_targetTransform == null)
         {
             Debug.LogError("No player found");
         }
@@ -51,9 +59,12 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Update()
     {
-       if(_state == EnemyState.Chase)
+
+
+       if (_state == EnemyState.Chase)
        {
             ChaseTarget();
+            _animator.SetBool("chasing", true);
             
        }
 
@@ -66,6 +77,7 @@ public class Enemy : MonoBehaviour, IDamageable
         if (_state == EnemyState.Attack)
         {
             AttackPlayer();
+            _animator.SetBool("chasing", false);
 
         }
 
@@ -81,6 +93,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
         if (_attackCooldownTimer <= 0)
         {
+            _animator.SetTrigger("punch");
             _attackCooldownTimer = _attackCooldown;
             _target.Damage(10);
 
@@ -91,7 +104,7 @@ public class Enemy : MonoBehaviour, IDamageable
 
    void ChaseTarget()
     {
-        Vector3 direction =(_targetTransorm.position - transform.position).normalized;
+        Vector3 direction =(_targetTransform.position - transform.position).normalized;
 
         if(_controller.isGrounded == false)
         {
@@ -101,12 +114,14 @@ public class Enemy : MonoBehaviour, IDamageable
 
         direction.y =_verticalVelocity;
 
+       
+
         _controller.Move(direction * Time.deltaTime * _speed);
     }
 
     void FaceTarget()
     {
-        Vector3 direction = (_targetTransorm.position - transform.position).normalized;
+        Vector3 direction = (_targetTransform.position - transform.position).normalized;
 
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
 
@@ -114,9 +129,14 @@ public class Enemy : MonoBehaviour, IDamageable
 
     }
 
+    
+
     public void Damage(int damageAmount)
     {
-        Health -= damageAmount; 
+        Health -= damageAmount;
+        _animator.SetTrigger("hit");
+        _state = EnemyState.Hit;
+        StartCoroutine(Hit());
 
         if(Health <= 0)
         {
@@ -127,7 +147,19 @@ public class Enemy : MonoBehaviour, IDamageable
 
     void Die()
     {
-        Destroy(gameObject);
+        _state = EnemyState.Dead;
+        _animator.SetBool("dead", true);
+        GetComponentInChildren<SphereCollider>().enabled = false;
+    }
+
+    IEnumerator Hit()
+    {
+        yield return new WaitForSeconds(1.5f);
+        _state = EnemyState.Chase;
+        if (Health <= 0)
+        {
+            Die();
+        }
     }
 
 }
@@ -136,6 +168,8 @@ public enum EnemyState
 {
     Idle,
     Chase,
-    Attack
+    Attack,
+    Hit,
+    Dead
 }
 
