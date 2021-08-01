@@ -37,7 +37,7 @@ public class Gun_Fire_Pistol : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            Debug.Log("Shoot gun");
+            //Debug.Log("Shoot gun");
             if (FullAuto == false)
             {
                 _anim.SetTrigger("Fire");
@@ -61,11 +61,16 @@ public class Gun_Fire_Pistol : MonoBehaviour
                 _anim.SetBool("Fire", false);
             }
         }
+
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            _anim.SetTrigger("Reload");
+        }
     }
 
     public void FireGunParticles()
     {
-        Debug.Log("Fired gun particles");
+        //Debug.Log("Fired gun particles");
         _smoke.Play();
         _bulletCasing.Play();
         _muzzleFlashSide.Play();

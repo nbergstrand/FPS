@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour
 
     float verticalRotation;
 
-    float minMaxRotation = 45.0f;
+    float minMaxRotation = 30.0f;
     
     float forwardVelocity, sidewaysVelocity, verticalVelocity;
 
